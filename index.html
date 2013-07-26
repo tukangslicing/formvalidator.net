@@ -959,12 +959,12 @@ $.setupForm();
 $.setupForm();
 </pre><pre class="prettyprint">
 // Setup form validation only on the form having id "registration"
-$.formSetup({
+$.setupForm({
     form : '#registration'
 });
 </pre><pre class="prettyprint">
 // Setup form validation on the forms that has id #registration and #login
-$.formSetup({
+$.setupForm({
     form : '#registration, #login'
 });</pre>
 
@@ -1044,7 +1044,7 @@ $.setupForm({
     </p>
 
     <pre class="prettyprint">
-$.formSetup({
+$.setupForm({
     borderColorOnError : '#FFF'
 });</pre>
 
@@ -1070,7 +1070,7 @@ $.formSetup({
     </ul>
 
     <pre class="prettyprint">
-$.formSetup({
+$.setupForm({
     validateOnBlur : false,
     showHelpOnFocus : false,
     addSuggestions : false
