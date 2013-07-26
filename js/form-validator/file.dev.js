@@ -10,7 +10,7 @@
  *
  * @website http://formvalidator.net/
  * @license Dual licensed under the MIT or GPL Version 2 licenses
- * @version 2.0.7
+ * @version 2.1.0
  */
 (function($, window) {
 
@@ -34,7 +34,7 @@
      */
     $.formUtils.addValidator({
         name : 'mime',
-        validate : function(str, $input) {
+        validatorFunction : function(str, $input) {
             var files = $input.get(0).files || [];
 
             if( SUPPORTS_FILE_READER ) {
@@ -56,7 +56,7 @@
                 return valid;
 
             } else {
-                return $.formUtils.validators.extension.validate(str, $input);
+                return $.formUtils.validators.extension.validatorFunction(str, $input);
             }
         },
         errorMessage : 'The file you are trying to upload is of wrong type',
@@ -68,7 +68,7 @@
      */
     $.formUtils.addValidator({
         name : 'extension',
-        validate : function(val, $input) {
+        validatorFunction : function(val, $input) {
             var ext = val.substr( val.lastIndexOf('.')+1 );
             return $.inArray(ext.toLowerCase(), _getTypes($input)) > -1;
         },
@@ -81,7 +81,7 @@
      */
     $.formUtils.addValidator({
         name : 'size',
-        validate : function(val, $input) {
+        validatorFunction : function(val, $input) {
             var maxSize = $input.valAttr('max-size');
             if( !maxSize ) {
                 console.log('Input "'+$input.attr('name')+'" is missing data-validation-max-size attribute');
@@ -128,7 +128,10 @@
      */
     $.formUtils.on('load', function() {
         $('input[type="file"]').filter('*[data-validation]').bind('change', function() {
-            $(this).parent().find('.form-error').remove();
+            $(this)
+                .removeClass('error')
+                .parent()
+                    .find('.form-error').remove();
         });
     });
 

@@ -13,7 +13,7 @@
  *
  * @website http://formvalidator.net/#swedish-validators
  * @license Dual licensed under the MIT or GPL Version 2 licenses
- * @version 2.0.7
+ * @version 2.1.0
  */
 (function($, window) {
 
@@ -22,7 +22,7 @@
     */
     $.formUtils.addValidator({
         name : 'swesec',
-        validate : function(securityNumber, $input) {
+        validatorFunction : function(securityNumber, $input) {
 
             var year, month, day, ssnParts;
 
@@ -70,7 +70,7 @@
 
     $.formUtils.addValidator({
         name : 'swecounty',
-        validate : function(str) {
+        validatorFunction : function(str) {
             str = str.toLowerCase();
             if($.inArray(str, this.counties) == -1) {
                 if(str.substr(-3).toLocaleLowerCase() != 'län') {
@@ -109,7 +109,7 @@
 
     $.formUtils.addValidator({
         name : 'swemunicipality',
-        validate : function(str) {
+        validatorFunction : function(str) {
             str = str.toLowerCase();
             if($.inArray(str, this.municipalities) == -1) {
 
@@ -140,7 +140,7 @@
      */
     $.formUtils.addValidator({
         name : 'swephone',
-        validate : function(tele) {
+        validatorFunction : function(tele) {
             var numPlus = tele.match(/\+/g);
             var numHifen = tele.match(/-/g);
 
@@ -164,8 +164,8 @@
      */
     $.formUtils.addValidator({
         name : 'swemobile',
-        validate : function(number) {
-            if (!$.formUtils.validators.validate_swephone.validate(number)) {
+        validatorFunction : function(number) {
+            if (!$.formUtils.validators.validate_swephone.validatorFunction(number)) {
                 return false;
             }
 
@@ -177,7 +177,7 @@
             } else if (number.length != 11 && begin === '467') {
                 return false;
             }
-            return (/07[0-9{1}]/).test(begin) || (begin === '467' && number.substr(3, 1) === '0');
+            return (/07[0-9{1}]/).test(begin) || begin === '467';
         },
         errorMessage : '',
         errorMessageKey: 'badTelephone'

@@ -5,8 +5,12 @@
     <title>QUnit Tests</title>
     <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.12.0.css">
     <style>
-        .jquery_form_error_message {
-            color: darkred;
+        .form-error {
+            color: red;
+            display: block;
+        }
+        label {
+            margin-left: 5px;
         }
     </style>
 </head>
@@ -63,6 +67,35 @@
         <input id="callback" />
     </p>
     <p>
+        <strong>Checkbox group</strong><br />
+        <label>
+            <input type="checkbox" name="box" value="1"
+                    data-validation="checkbox_group"
+                    data-validation-qty="1-2" />
+            1
+        </label>
+        <label>
+            <input type="checkbox" name="box" value="2" />
+            2
+        </label>
+        <label>
+            <input type="checkbox" name="box" value="3" />
+            3
+        </label>
+        <label>
+            <input type="checkbox" name="box" value="4" />
+            4
+        </label>
+        <label>
+            <input type="checkbox" name="box" value="5" />
+            5
+        </label>
+        <label>
+            <input type="checkbox" name="box" value="6" />
+            6
+        </label>
+    </p>
+    <p>
         <input type="submit">
     </p>
 </form>
@@ -81,7 +114,7 @@
             elAttr = {};
         if( typeof dataValidationAttr == 'string') {
             elAttr['data-validation'] = dataValidationAttr;
-        } else {
+        } else if(dataValidationAttr) {
             $.each(dataValidationAttr, function(x, val) {
                 if( x == '' ) {
                     elAttr['data-validation'] = val;
@@ -353,6 +386,31 @@
             });
         });
 
+
+        /*
+         * SWEDISH MOBILE VALIDATION
+         */
+        test("Swe mobile validation", function() {
+
+            clearForm();
+
+            var links = [
+                {val:'0702777118', isValid:true},
+                {val:'0722777118', isValid:true},
+                {val:'46702777118', isValid:true},
+                {val:'45702777118', isValid:false},
+                {val:'+46702777118', isValid:true},
+                {val:'+45702777118', isValid:false},
+                {val:'0732777118', isValid:true},
+                {val:'0302777118', isValid:false},
+                {val:'07027771', isValid:false}
+            ];
+
+            $.each(links, function(i, obj) {
+                runTest(obj, 'swemobile');
+            });
+        });
+
         /*
          * LENGTH VALIDATION
          */
@@ -408,6 +466,9 @@
          * FILE VALIDATION
          */
         test('File validation', function() {
+
+            clearForm();
+
             equal(100, $.formUtils.convertSizeNameToBytes('100'));
             equal(100, $.formUtils.convertSizeNameToBytes('100b'));
             equal(100, $.formUtils.convertSizeNameToBytes('100B'));
@@ -434,13 +495,36 @@
             });
         });
 
+        test('Confirmation', function() {
+
+            clearForm();
+
+            var $inputA = input('hejsan', {'':'confirmation'}, {name:'test'}),
+                $inputB = input('hej', undefined, {name:'test_confirmation'}),
+                result = $.formUtils.validateInput($inputA, $.formUtils.LANG, $.formUtils.defaultConfig(), $form);
+
+            equal(
+                typeof(result) == 'string', // Should be an error message
+                true,
+                'Could not check that inputs did not confirmation each other'
+            );
+
+            $inputB.val('hejsan');
+            result = $.formUtils.validateInput($inputA, $.formUtils.LANG, $.formUtils.defaultConfig(), $form);
+            equal(
+                result,
+                true,
+                'Could not validate confirmation'
+            );
+        });
+
         // TODO: Write more tests...
 
     }
 
     var dev = window.location.hash.indexOf('dev') > -1 ? '.dev' : '';
 
-    $.setupForm({
+    $.validationSetup({
         language : {
             requiredFields: 'Du måste bocka för denna'
         },
@@ -470,13 +554,13 @@
         }
     });
 
-    // Load one module outside $.setupForm() even though you do not have to
+    // Load one module outside $.validationSetup() even though you do not have to
     $.formUtils.loadModules('date'+dev+'.js', false, false);
 
     // Add a new validator
     $.formUtils.addValidator({
         name : 'even_number',
-        validate : function(value, $el, config, language, $form) {
+        validatorFunction : function(value, $el, config, language, $form) {
             return parseInt(value, 10) % 2 === 0;
         },
         errorMessage : 'You have to give an even number',

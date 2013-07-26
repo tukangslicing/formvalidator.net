@@ -5,29 +5,30 @@
 *
 * @website http://formvalidator.net/
 * @license Dual licensed under the MIT or GPL Version 2 licenses
-* @version 2.0.7
+* @version 2.1.0
 */
 (function($) {
 
     'use strict';
 
     /**
-    * Should be called on the element containing the input elements
+    * Assigns validateInputOnBlur function to elements blur event
     *
     * @param {Object} language Optional, will override $.formUtils.LANG
     * @param {Object} settings Optional, will override the default settings
     * @return {jQuery}
     */
     $.fn.validateOnBlur = function(language, settings) {
-        this.find('textarea,input').blur(function() {
-               $(this).doValidate(language, settings);
+        this.find('input[data-validation], textarea[data-validation]')
+            .blur(function() {
+               $(this).validateInputOnBlur(language, settings);
             });
-
         return this;
     };
 
     /**
-    * Should be called on the element containing the input elements.
+    * fade in help message when input gains focus
+    * fade out when input loses focus
     * <input data-help="The info that I want to display for the user when input is focused" ... />
     *
     * @param {String} attrName - Optional, default is data-help
@@ -39,10 +40,10 @@
         }
 
         this.find('textarea,input').each(function() {
-            var $element = $(this);
-            var help = $element.attr(attrName);
+            var $element = $(this),
+                className = 'jquery_form_help_' + $element.attr('name'),
+                help = $element.attr(attrName);
             if(help) {
-                var className = 'jquery_form_help_' + $element.attr('name');
                 $element
                     .focus(function() {
                         var $help = $element.parent().find('.'+className);
@@ -71,36 +72,37 @@
     };
 
     /**
-    * Function that validates the value of given input and shows
-    * error message in a span element that is appended to the parent
-    * element
+    * Validate single input when it loses focus
+    * shows error message in a span element 
+    * that is appended to the parent element
     *
     * @param {Object} [language] Optional, will override $.formUtils.LANG
     * @param {Object} [config] Optional, will override the default settings
     * @param {Boolean} [attachKeyupEvent] Optional
     * @return {jQuery}
     */
-    $.fn.doValidate = function(language, config, attachKeyupEvent) {
-        if(typeof attachKeyupEvent == 'undefined') {
+    $.fn.validateInputOnBlur = function(language, config, attachKeyupEvent) {
+        if(attachKeyupEvent === undefined) {
             attachKeyupEvent = true;
         }
-
-        var $element = this;
-
-        // test if there is custom obj to hold element error msg (id = element name + err_msg)
-        var elementErrMsgObj = document.getElementById($element.attr('name')+'_err_msg');
 
         language = $.extend(language || {}, $.formUtils.LANG);
         config = $.extend($.formUtils.defaultConfig(), config || {});
         config.errorMessagePosition = 'element';
 
-        var $form = $element.closest("form");
+        // Capture default error message
+        $.formUtils.figureOutDefaultBorderColor(this);
 
-        $.formUtils.figureOutDefaultBorderColor($element);
+        var $element = this,
 
-        var validationRule = $element.attr(config.validationRuleAttribute);
+            // test if there is custom obj to hold element error msg (id = element name + err_msg)
+            elementErrMsgObj = document.getElementById($element.attr('name')+'_err_msg'),
 
-        if( validationRule == 'validate_backend' || validationRule == 'backend' ) {
+            $form = $element.closest("form"),
+
+            validationRule = $element.attr(config.validationRuleAttribute);
+
+        if( validationRule == 'server' ) {
             // not possible to validate on the fly
             return this;
         }
@@ -119,16 +121,6 @@
         if(config.borderColorOnError !== '') {
             $element.css('border-color', $.formUtils.defaultBorderColor);
         }
-
-        if(validationRule && validationRule.indexOf('confirmation') > -1) {
-            var validateWhenBlurred = function($element) {
-                var $confirm = $form.find('input[name="' + $element.attr('name') + '_confirmation"]').eq(0);
-                $confirm.one('blur', function() {
-                    $element.doValidate(language, settings, false);
-                });
-            };
-            validateWhenBlurred($element);
-         }
 
         var validation = $.formUtils.validateInput($element, language, config, $form);
 
@@ -152,7 +144,7 @@
 
             if(attachKeyupEvent) {
                 $element.bind('keyup', function() {
-                    $(this).doValidate(language, config, false);
+                    $(this).validateInputOnBlur(language, config, false);
                 });
             }
         }
@@ -175,7 +167,8 @@
         } else if( val === false || val === null ) {
             return this.removeAttr('data-validation-'+name);
         } else {
-            return this.attr('data-validation-'+name, val);
+            if(name.length > 0) name='-'+name;
+            return this.attr('data-validation'+name, val);
         }
     };
 
@@ -185,7 +178,7 @@
      * @param [language]
      * @param [config]
      */
-    $.fn.validate = function(language, config) {
+    $.fn.validateForm = function(language, config) {
 
         language = $.extend($.formUtils.LANG, language || {});
         config = $.extend($.formUtils.defaultConfig(), config || {});
@@ -204,16 +197,16 @@
             $element
                 .valAttr('current-error', mess)
                 .removeClass('valid');
-        };
+        },
 
         /** Error messages for this validation */
-        var errorMessages = [];
+        errorMessages = [],
 
         /** Input elements which value was not valid */
-        var errorInputs = [];
+        errorInputs = [],
 
         /** Form instance */
-        var $form = this;
+        $form = this,
 
         /**
          * Tells whether or not to validate element with this name and of this type
@@ -222,7 +215,7 @@
          * @param {String} type
          * @return {Boolean}
          */
-        var ignoreInput = function(name, type) {
+        ignoreInput = function(name, type) {
             if (type === 'submit' || type === 'button') {
                 return true;
             }
@@ -292,19 +285,20 @@
         if (!$.formUtils.haltValidation && errorInputs.length > 0) {
 
             // Apply error style to invalid inputs
-            for (var i = 0; i < errorInputs.length; i++) {
+            $.each(errorInputs, function(i, $input) {
                 if (config.borderColorOnError !== '') {
-                    errorInputs[i].css('border-color', config.borderColorOnError);
+                    $input.css('border-color', config.borderColorOnError);
                 }
-                errorInputs[i].addClass(config.errorElementClass);
-            }
+                $input.addClass(config.errorElementClass);
+            });
 
             // display all error messages in top of form
             if (config.errorMessagePosition === 'top') {
                 var messages = '<strong>' + language.errorTitle + '</strong>';
-                for (var i = 0; i < errorMessages.length; i++) {
-                    messages += '<br />* ' + errorMessages[i];
-                }
+                $.each(errorMessages, function(i, mess) {
+                    messages += '<br />* ' + mess;
+                });
+
                 // using div instead of P gives better control of css display properties
                 $form.children().eq(0).before('<div class="' + config.errorMessageClass + '">' + messages + '</div>');
                 if(config.scrollToTopOnError) {
@@ -314,15 +308,15 @@
 
             // Display error message below input field
             else {
-                for (var i = 0; i < errorInputs.length; i++) {
-                    var $parent = errorInputs[i].parent();
-                    var $errorSpan = $parent.find('span[class='+config.errorMessageClass+']');
+                $.each(errorInputs, function(i, $input) {
+                    var $parent = $input.parent(),
+                        $errorSpan = $parent.find('span[class='+config.errorMessageClass+']');
                     if ($errorSpan.length > 0) {
-                        $errorSpan.eq(0).text(errorInputs[i].valAttr('current-error'));
+                        $errorSpan.text(', '+$input.valAttr('current-error'));
                     } else {
-                        $parent.append('<span class="'+config.errorMessageClass+'">' + errorInputs[i].valAttr('current-error') + '</span>');
+                        $parent.append('<span class="'+config.errorMessageClass+'">' + $input.valAttr('current-error') + '</span>');
                     }
-                }
+                });
             }
             return false;
         }
@@ -393,7 +387,7 @@
      * Short hand function that makes the validation setup require less code
      * @param config
      */
-    $.setupForm = function(config) {
+    $.validationSetup = function(config) {
         config = $.extend({
             form : 'form',
             validateOnBlur : true,
@@ -417,7 +411,7 @@
                     }, 200);
                     return false;
                 }
-                var valid = $(this).validate(config.language, config);
+                var valid = $(this).validateForm(config.language, config);
                 if( valid && typeof config.onSuccess == 'function') {
                     var callbackResponse = config.onSuccess($form);
                     if( callbackResponse === false )
@@ -436,7 +430,6 @@
             if( config.showHelpOnFocus ) {
                 $form.showHelpOnFocus();
             }
-
             if( config.addSuggestions ) {
                 $form.addSuggestions();
             }
@@ -458,7 +451,7 @@
     $.formUtils = {
 
         /**
-         * Default config for $(...).validate();
+         * Default config for $(...).validateForm();
          */
         defaultConfig :  function() {
             return {
@@ -512,7 +505,8 @@
         * @param {Object} validator
         */
         addValidator : function(validator) {
-            var name = validator.name.indexOf('validate_') === 0 ? validator.name : 'validate_'+validator.name; // legacy...
+            // prefix with "validate_" for backward compatibility reasons
+            var name = validator.name.indexOf('validate_') === 0 ? validator.name : 'validate_'+validator.name;
             this.validators[name] = validator;
         },
 
@@ -655,14 +649,17 @@
         */
         validateInput : function($element, language, config, $form) {
 
-            var value = $.trim( $element.val() || '' );
-            var optional = $element.valAttr('optional');
+            var value = $.trim( $element.val() || ''),
+                optional = $element.valAttr('optional'),
 
-            // test if a checkbox forces this element to be validated
-            var validationDependsOnCheckedInput = false;
-            var validationDependentInputIsChecked = false;
-            // get value of this element's attribute "... if-checked"
-            var validateIfCheckedElementName = $element.valAttr("if-checked");
+                // test if a checkbox forces this element to be validated
+                validationDependsOnCheckedInput = false,
+                validationDependentInputIsChecked = false,
+                validateIfCheckedElement = false,
+
+                // get value of this element's attribute "... if-checked"
+                validateIfCheckedElementName = $element.valAttr("if-checked");
+
             // make sure we can proceed
             if (validateIfCheckedElementName != null) {
 
@@ -671,7 +668,7 @@
                 validationDependsOnCheckedInput = true;
 
                 // select the checkbox type element in this form
-                var validateIfCheckedElement = $form.find('input[name="' + validateIfCheckedElementName + '"]');
+                validateIfCheckedElement = $form.find('input[name="' + validateIfCheckedElementName + '"]');
 
                 // test if it's property "checked" is checked
                 if ( validateIfCheckedElement.prop('checked') ) {
@@ -684,14 +681,13 @@
             // if empty AND optional attribute is present
             // OR depending on a checkbox being checked AND checkbox is checked, return true
             if ((!value && optional === 'true') || (validationDependsOnCheckedInput && !validationDependentInputIsChecked)) {
-                $.formUtils.trigger('valid', $element);
                 return true;
             }
 
-            var validationRules = $element.attr(config.validationRuleAttribute);
+            var validationRules = $element.attr(config.validationRuleAttribute),
 
-            // see if form element has inline err msg attribute
-            var validationErrorMsg = true;
+                // see if form element has inline err msg attribute
+                validationErrorMsg = true;
 
             $.split(validationRules, function(rule) {
                 if( rule.indexOf('validate_') !== 0 ) {
@@ -700,12 +696,16 @@
 
                 var validator = $.formUtils.validators[rule];
 
-                if( validator && typeof validator['validate'] == 'function' ) {
+                if( validator && typeof validator['validatorFunction'] == 'function' ) {
+                    // special change of element for checkbox_group rule
+                    if ( rule == 'validate_checkbox_group' ) {
+                        // set element to first in group, so error msg is set only once
+                            $element = $("[name='"+$element.attr('name')+"']:eq(0)");
+                    }
 
-                    var isValid = validator.validate(value, $element, config, language, $form);
+                    var isValid = validator.validatorFunction(value, $element, config, language, $form);
 
                     if(!isValid) {
-                        $.formUtils.trigger('invalid', $element);
                         validationErrorMsg =  $element.attr(config.validationErrorMsgAttribute);
                         if( !validationErrorMsg ) {
                             validationErrorMsg = language[validator.errorMessageKey];
@@ -723,20 +723,8 @@
             if( typeof validationErrorMsg == 'string' ) {
                 return validationErrorMsg;
             } else {
-                $.formUtils.trigger('valid', $element);
                 return true;
             }
-        },
-
-       /**
-        * <input data-validation="validate_min_length length12" /> => getAttribute($(element).attr('data-validation'), 'length') = 12
-        * @param {String} attrValue
-        * @param {String} attrName
-        * @returns {Number}
-        */
-        getAttributeInteger : function(attrValue, attrName) {
-            var regex = new RegExp('(' + attrName + '[0-9\-]+)', "g");
-            return attrValue.match(regex)[0].replace(/[^0-9\-]/g, '');
         },
 
        /**
@@ -748,15 +736,18 @@
         * @return {Array}|{Boolean}
         */
         parseDate : function(val, dateFormat) {
-            var divider = dateFormat.replace(/[a-zA-Z]/gi, '').substring(0,1);
-            var regexp = '^';
-            var formatParts = dateFormat.split(divider);
-            for(var i=0; i < formatParts.length; i++) {
-                regexp += (i > 0 ? '\\'+divider:'') + '(\\d{'+formatParts[i].length+'})';
-            }
+            var divider = dateFormat.replace(/[a-zA-Z]/gi, '').substring(0,1),
+                regexp = '^',
+                formatParts = dateFormat.split(divider),
+                matches, day, month, year;
+
+            $.each(formatParts, function(i, part) {
+               regexp += (i > 0 ? '\\'+divider:'') + '(\\d{'+part.length+'})';
+            });
+
             regexp += '$';
             
-            var matches = val.match(new RegExp(regexp));
+            matches = val.match(new RegExp(regexp));
             if (matches === null) {
                 return false;
             }
@@ -770,9 +761,9 @@
                 return -1;
             };
         
-            var month = findDateUnit('m', formatParts, matches);
-            var day = findDateUnit('d', formatParts, matches);
-            var year = findDateUnit('y', formatParts, matches);
+            month = findDateUnit('m', formatParts, matches);
+            day = findDateUnit('d', formatParts, matches);
+            year = findDateUnit('y', formatParts, matches);
         
             if ((month === 2 && day > 28 && (year % 4 !== 0  || year % 100 === 0 && year % 400 !== 0)) 
             	|| (month === 2 && day > 29 && (year % 4 === 0 || year % 100 !== 0 && year % 400 === 0))
@@ -841,8 +832,31 @@
 
            // count chars on pageload, if there are prefilled input-values
            $(document).bind("ready", countCharacters);
-
         },
+
+        /**
+        * Test numeric against allowed range
+        *
+        * @param $value int
+        * @param $rangeAllowed str; (1-2, min1, max2)
+        * @return array 
+        */
+        numericRangeCheck : function(value, rangeAllowed) 
+        {
+           // split by dash
+           var range = $.split(rangeAllowed, '-');
+           // min or max
+           var minmax = parseInt(rangeAllowed.substr(3),10)
+           // range ?
+           if (range.length == 2 && (value < parseInt(range[0],10) || value > parseInt(range[1],10) ) )
+           {   return [ "out", range[0], range[1] ] ; } // value is out of range
+           else if (rangeAllowed.indexOf('min') === 0 && (value < minmax ) ) // min
+                {  return ["min", minmax]; } // value is below min
+                else if (rangeAllowed.indexOf('max') === 0 && (value > minmax ) ) // max
+                     {   return ["max", minmax]; } // value is above max
+           else { return [ "ok" ] ; } // value is in allowed range
+        },
+
 
         _numSuggestionElements : 0,
         _selectedSuggestion : null,
@@ -898,9 +912,10 @@
                     $.formUtils._selectedSuggestion = null;
                 })
                 .bind('keyup', function() {
-                    var $input = $(this);
-                    var foundSuggestions = [];
-                    var val = $.trim($input.val()).toLocaleLowerCase();
+                    var $input = $(this),
+                        foundSuggestions = [],
+                        val = $.trim($input.val()).toLocaleLowerCase();
+
                     if(val == $.formUtils._previousTypedVal) {
                         return;
                     }
@@ -908,9 +923,10 @@
                         $.formUtils._previousTypedVal = val;
                     }
 
-                    var hasTypedSuggestion = false;
-                    var suggestionId = $input.valAttr('suggestion-nr');
-                    var $suggestionContainer = $('.jquery-form-suggestion-'+suggestionId);
+                    var hasTypedSuggestion = false,
+                        suggestionId = $input.valAttr('suggestion-nr'),
+                        $suggestionContainer = $('.jquery-form-suggestion-'+suggestionId);
+
                     $suggestionContainer.scrollTop(0);
 
                     // Find the right suggestions
@@ -1016,10 +1032,11 @@
                             }
 
                             // Scroll in suggestion window
-                            var containerInnerHeight = $suggestionContainer.innerHeight();
-                            var containerScrollTop = $suggestionContainer.scrollTop();
-                            var suggestionHeight = $suggestionContainer.children().eq(0).outerHeight();
-                            var activeSuggestionPosY = suggestionHeight * ($.formUtils._selectedSuggestion);
+                            var containerInnerHeight = $suggestionContainer.innerHeight(),
+                                containerScrollTop = $suggestionContainer.scrollTop(),
+                                suggestionHeight = $suggestionContainer.children().eq(0).outerHeight(),
+                                activeSuggestionPosY = suggestionHeight * ($.formUtils._selectedSuggestion);
+
                             if( activeSuggestionPosY < containerScrollTop || activeSuggestionPosY > (containerScrollTop+containerInnerHeight)) {
                                 $suggestionContainer.scrollTop( activeSuggestionPosY );
                             }
@@ -1056,11 +1073,10 @@
             badTelephone : 'You have not given a correct phone number',
             badSecurityAnswer : 'You have not given a correct answer to the security question',
             badDate : 'You have not given a correct date',
-            tooLongStart : 'You have given an answer longer than ',
-            tooLongEnd : ' characters',
-            tooShortStart : 'You have given an answer shorter than ',
-            tooShortEnd : ' characters',
-            badLength : 'You have to give an answer between ',
+            lengthBadStart : 'You must give an answer between ',
+            lengthBadEnd : 'characters',
+            lengthTooLongStart : 'You have given an answer longer than ',
+            lengthTooShortStart : 'You have given an answer shorter than ',
             notConfirmed : 'Values could not be confirmed',
             badDomain : 'Incorrect domain value',
             badUrl : 'The answer you gave was not a correct URL',
@@ -1074,7 +1090,11 @@
             badAlphaNumeric : 'The answer you gave must contain only alphanumeric characters ',
             badAlphaNumericExtra: ' and ',
             wrongFileSize : 'The file you are trying to upload is too large',
-            wrongFileType : 'The file you are trying to upload is of wrong type'
+            wrongFileType : 'The file you are trying to upload is of wrong type',
+            groupCheckedRangeStart : 'Please choose between ',
+            groupCheckedTooFewStart : 'Please choose at least ',
+            groupCheckedTooManyStart : 'Please choose a maximum of ',           
+            groupCheckedEnd : ' item(s)'
         }
     };
 
@@ -1088,13 +1108,13 @@
     * Validate email
     */
     $.formUtils.addValidator({
-        name : 'validate_email',
-        validate : function(email) {
+        name : 'email',
+        validatorFunction : function(email) {
             var emailFilter = /^([a-zA-Z0-9_\.\-])+@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
             if(emailFilter.test(email)) {
                var parts = email.split('@');
                if(parts.length == 2) {
-                   return $.formUtils.validators.validate_domain.validate(parts[1]);
+                   return $.formUtils.validators.validate_domain.validatorFunction(parts[1]);
                }
             }
             return false;
@@ -1107,8 +1127,8 @@
     * Validate domain name
     */
     $.formUtils.addValidator({
-        name : 'validate_domain',
-        validate : function(val, $input) {
+        name : 'domain',
+        validatorFunction : function(val, $input) {
 
             var topDomains = ['.com', '.net', '.org', '.biz', '.coop', '.info', '.museum', '.name', '.pro',
                     '.edu', '.gov', '.int', '.mil', '.ac', '.ad', '.ae', '.af', '.ag', '.ai', '.al',
@@ -1198,8 +1218,8 @@
     * Validate required
     */
     $.formUtils.addValidator({
-        name : 'validate_required',
-        validate : function(val, $el) {
+        name : 'required',
+        validatorFunction : function(val, $el) {
             return $el.attr('type') == 'checkbox' ? $el.is(':checked') : $.trim(val) !== '';
         },
         errorMessage : '',
@@ -1210,40 +1230,41 @@
     * Validate length range
     */
     $.formUtils.addValidator({
-        name : 'validate_length',
-        validate : function(value, $el, config, language) {
-            var len = $el.valAttr('length');
-            if(len == undefined) {
+        name : 'length',
+        validatorFunction : function(value, $el, config, lang) {
+            var lengthAllowed = $el.valAttr('length');
+            if(lengthAllowed == undefined) {
                 var elementType = $el.get(0).nodeName;
                 alert('Please add attribute "data-validation-length" to '+elementType+' named '+$el.attr('name'));
                 return true;
             }
 
-            var range = $.split(len, '-');
+            // check if length is above min, below max, within range etc.
+                var lengthCheckResults = $.formUtils.numericRangeCheck(value.length, lengthAllowed),
+                    checkResult;
 
-            // range
-            if(range.length == 2 && (value.length < parseInt(range[0],10) || value.length > parseInt(range[1],10))) {
-                this.errorMessage = language.badLength + len + language.tooLongEnd;
-                return false;
-            }
-            // min
-            else if(len.indexOf('min') === 0) {
-                var minLength = parseInt(len.substr(3),10);
-                if(minLength > value.length) {
-                    this.errorMessage = language.tooShortStart + minLength + language.tooShortEnd;
-                    return false;
+                switch(lengthCheckResults[0] )
+                {   // outside of allowed range
+                    case "out":
+                        this.errorMessage = lang.lengthBadStart + lengthAllowed + lang.lengthBadEnd;
+                        checkResult = false;
+                        break;
+                    // too short
+                    case "min":
+                        this.errorMessage = lang.lengthTooShortStart + lengthCheckResults[1] + lang.lengthBadEnd;
+                        checkResult = false;
+                        break;
+                    // too long
+                    case "max":
+                        this.errorMessage = lang.lengthTooLongStart + lengthCheckResults[1] + lang.lengthBadEnd;
+                        checkResult = false;
+                        break;
+                    // ok
+                    default:
+                        checkResult = true;
                 }
-            }
-            // max
-            else if(len.indexOf('max') === 0) {
-                var maxLength = parseInt(len.substr(3),10);
-                if(maxLength < value.length) {
-                    this.errorMessage = language.tooLongStart + maxLength + language.tooLongEnd;
-                    return false;
-                }
-            }
-
-            return true;
+            
+            return checkResult;
         },
         errorMessage : '',
         errorMessageKey: ''
@@ -1253,8 +1274,8 @@
     * Validate url
     */
     $.formUtils.addValidator({
-        name : 'validate_url',
-        validate : function(url) {
+        name : 'url',
+        validatorFunction : function(url) {
             // written by Scott Gonzalez: http://projects.scottsplayground.com/iri/ but added support for arrays in the url ?arg[]=sdfsdf
             var urlFilter = /^(https|http|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|\[|\]|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i;
             if( urlFilter.test(url) ) {
@@ -1263,7 +1284,7 @@
                 if(domainSlashPos > -1)
                     domain = domain.substr(0, domainSlashPos);
 
-                return $.formUtils.validators.validate_domain.validate(domain); // todo: add support for IP-addresses
+                return $.formUtils.validators.validate_domain.validatorFunction(domain); // todo: add support for IP-addresses
             }
             return false;
         },
@@ -1275,8 +1296,8 @@
     * Validate number (floating or integer)
     */
     $.formUtils.addValidator({
-        name : 'validate_number',
-        validate : function(val, $el) {
+        name : 'number',
+        validatorFunction : function(val, $el) {
             if(val !== '') {
                 var allowing = $el.valAttr('allowing') || '';
                 if(allowing.indexOf('number') == -1)
@@ -1303,8 +1324,8 @@
      * Validate alpha numeric
      */
     $.formUtils.addValidator({
-        name : 'validate_alphanumeric',
-        validate : function(val, $el, config, language) {
+        name : 'alphanumeric',
+        validatorFunction : function(val, $el, config, language) {
             var patternStart = '^([a-zA-Z0-9',
                 patternEnd = ']+)$',
                 additionalChars = $el.attr('data-validation-allowing'),
@@ -1333,8 +1354,8 @@
     * Validate against regexp
     */
     $.formUtils.addValidator({
-        name : 'validate_custom',
-        validate : function(val, $el, config) {
+        name : 'custom',
+        validatorFunction : function(val, $el, config) {
             var regexp = new RegExp($el.valAttr('regexp'));
             return regexp.test(val);
         },
@@ -1346,13 +1367,13 @@
     * Validate date
     */
     $.formUtils.addValidator({
-        name : 'validate_date',
-        validate : function(date, $el, conf) {
+        name : 'date',
+        validatorFunction : function(date, $el, conf) {
             var dateFormat = 'yyyy-mm-dd';
-            if($el.attr('data-validation-format')) {
-                dateFormat = $el.attr('data-validation-format');
+            if($el.valAttr('format')) {
+                dateFormat = $el.valAttr('format');
             }
-            else if(typeof conf.dateFormat != 'undefined') {
+            else if( conf.dateFormat ) {
                 dateFormat = conf.dateFormat;
             }
 
@@ -1360,6 +1381,61 @@
         },
         errorMessage : '',
         errorMessageKey: 'badDate'
+    });
+
+
+    /*
+    * Validate group of checkboxes, validate qty required is checked
+    * written by Steve Wasiura : http://stevewasiura.waztech.com
+    * element attrs
+    *    data-validation="checkbox_group"
+    *    data-validation-qty="1-2"  // min 1 max 2
+    *    data-validation-error-msg="chose min 1, max of 2 checkboxes"
+    */
+    $.formUtils.addValidator({
+        name : 'checkbox_group',
+        validatorFunction : function(val, $el, config, lang, $form) 
+        {   // preset return var
+            var checkResult = true;
+            // get name of element. since it is a checkbox group, all checkboxes will have same name
+            var elname = $el.attr('name');
+            // get count of checked checkboxes with this name
+            var checkedCount = $("input[type=checkbox][name^='"+elname+"']:checked", $form).length;
+            // get el attr that specs qty required / allowed
+            var qtyAllowed = $el.valAttr('qty');
+            if (qtyAllowed == undefined) {
+                var elementType = $el.get(0).nodeName;
+                alert('Attribute "data-validation-qty" is missing from '+elementType+' named '+$el.attr('name'));
+            }
+            // call Utility function to check if count is above min, below max, within range etc.
+            var qtyCheckResults = $.formUtils.numericRangeCheck(checkedCount, qtyAllowed) ;
+            // results will be array, [0]=result str, [1]=qty int
+            switch(qtyCheckResults[0] ) {   
+                // outside allowed range
+                case "out":
+                    this.errorMessage = lang.groupCheckedRangeStart + qtyAllowed + lang.groupCheckedEnd;
+                    checkResult = false;
+                    break;
+                // below min qty
+                case "min":
+                    this.errorMessage = lang.groupCheckedTooFewStart + qtyCheckResults[1] + lang.groupCheckedEnd;
+                    checkResult = false;
+                    break;
+                // above max qty
+                case "max":
+                    this.errorMessage = lang.groupCheckedTooManyStart + qtyCheckResults[1] + lang.groupCheckedEnd;
+                    checkResult = false;
+                    break;
+                // ok
+                default:
+                    checkResult = true;
+            }
+            
+        return checkResult;
+        
+        } // remove comma
+     //   errorMessage : '', // set above in switch statement
+     //   errorMessageKey: '' // not used
     });
 
 })(jQuery);

@@ -23,7 +23,7 @@ prettyPrint();
 /*
  Setup form validation
  */
-$.setupForm({
+$.validationSetup({
     form : '.test-form:not(.top-messages)',
     modules : 'date, security, location, date, sweden, uk, file',
     onModulesLoaded: function($form) {
@@ -55,7 +55,7 @@ $.setupForm({
 /*
   Setup form validation with error messages in top
  */
-$.setupForm({
+$.validationSetup({
     form : '.test-form.top-messages',
     scrollToTopOnError: false,
     validateOnBlur: false,
