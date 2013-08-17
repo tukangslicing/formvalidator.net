@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <link href='http://fonts.googleapis.com/css?family=Abel' rel='stylesheet' type='text/css'/>
     <link rel="stylesheet" href="style/bootstrap.min.css" type="text/css"/>
-    <link rel="stylesheet" href="style/main.css?v=3" type="text/css"/>
+    <link rel="stylesheet" href="style/main.css?v=5" type="text/css"/>
     <link rel="shortcut icon" href="img/favicon.ico" type="image-x/icon"/>
 
 </head>
@@ -726,7 +726,7 @@ $.validationSetup({
     <form action="">
         <p>
             <strong>User name:</strong>
-            <input name="user" data-validation="backend" data-validation-url="/validate-input.php">
+            <input name="user" data-validation="server" data-validation-url="/validate-input.php">
         </p>
         ...
     </form>
@@ -813,7 +813,7 @@ $_SESSION['captcha'] = array( mt_rand(0,9), mt_rand(1, 9) );
         <label class="control-label">Campaign code (validated on server side)</label>
 
         <div class="controls">
-            <input name="code" data-validation="backend" data-validation-url="validate-email.php"
+            <input name="code" class="server-validation" data-validation="server" data-validation-url="validate-email.php"
                    data-validation-help="Only the word &quot;secret&quot;t is valid">
         </div>
     </div>
@@ -832,6 +832,16 @@ $_SESSION['captcha'] = array( mt_rand(0,9), mt_rand(1, 9) );
 </form>
 
                                 <pre class="prettyprint linenums">
+&lt;html&gt;
+&lt;head&gt;
+&lt;style type=&quot;text/css&quot;&gt;
+    /* Add ajax preloader when server is being requested */
+    .validating_server_side input.server {
+        background: url(img/ajax-preloader.gif) no-repeat center right;
+        opacity: 0.6
+    }
+&lt;/style&gt;
+...
 <div class="convert-code">
 <form action="" id="form">
     <p>
@@ -849,7 +859,7 @@ $_SESSION['captcha'] = array( mt_rand(0,9), mt_rand(1, 9) );
     </p>
     <p>
         Code (validated on server side)
-        <input name="..." data-validation="backend" data-validation-url="validate-code.php"/>
+        <input name="..." class="server" data-validation="server" break="" data-validation-url="validate-code.php"/>
     </p>
     <p>
         What is the sum of 3 + 4?
@@ -898,7 +908,7 @@ $_SESSION['captcha'] = array( mt_rand(0,9), mt_rand(1, 9) );
 // Add validation
 $.formUtils.addValidator({
     name : 'even_number',
-    validate : function(value, $el, config, language, $form) {
+    validatorFunction : function(value, $el, config, language, $form) {
         return parseInt(value, 10) % 2 === 0;
     },
     errorMessage : 'You have to give an even number',
@@ -921,7 +931,7 @@ $.validationSetup();
     <p><strong>name</strong> - The name of the validator, which is used in the validation attribute of the input
         element.</p>
 
-    <p><strong>validate</strong> - Callback function that validates the input. Should return a boolean telling if the
+    <p><strong>validatorFunction</strong> - Callback function that validates the input. Should return a boolean telling if the
         value is considered valid or not.</p>
 
     <p><strong>errorMessageKey</strong> - Name of language property that is used in case the value of the input is
@@ -991,7 +1001,7 @@ $.validationSetup();
 
     <hr/>
 
-    <h3>Setup</h3>
+    <h3 data-page-section="setup">Setup</h3>
 
                 <pre class="prettyprint">
 // Setup form validation on all forms on page
@@ -1007,7 +1017,7 @@ $.validationSetup({
     form : '#registration, #login'
 });</pre>
 
-    <h3>Loading modules</h3>
+    <h3 data-page-section="modules">Loading modules</h3>
 
     <p>
         Use the property <code>modules</code> to declare which modules you want to load. The property should contain a
@@ -1033,7 +1043,7 @@ $.validationSetup({
         Here you can read more about how to <a href="#custom-validators">create your own modules</a>.
     </p>
 
-    <h3>Validation callbacks</h3>
+    <h3 data-page-section="callbacks">Validation callbacks</h3>
 
     <p>
         There are three different events triggered by the validation.
@@ -1073,7 +1083,12 @@ $.validationSetup({
     });
 </pre>
 
-    <h3>Styling</h3>
+    <h3 data-page-section="styling">Styling</h3>
+
+    <p>
+        <em>This plugin is compatible with <strong>twitter bootstrap 3.x</strong> out of the box. The classes mentioned below is in
+        addition to classes used by twitter bootstrap.</em>
+    </p>
 
     <p>An input that has a valid value will get the class <code>valid</code>, if the value is invalid the input will get
     the class <code>error</code>. The error messages is placed in a span element with the class <code>form-error</code>.
@@ -1087,7 +1102,7 @@ $.validationSetup({
     borderColorOnError : '#FFF'
 });</pre>
 
-    <h3>Disabling features</h3>
+    <h3 data-page-section="disable">Disabling features</h3>
 
     <p>
         You can disable some of the features of this plugin by using the following configuration options.
@@ -1116,10 +1131,10 @@ $.validationSetup({
 });
 </pre>
 
-    <h3>Displaying error messages in the top of the form</h3>
+    <h3 data-page-section="position">Displaying error messages in the top of the form</h3>
 
     <p>
-        If you would like the error messages to be display together in the top of the form (instead of beside each input)
+        If you would like the error messages to be displayed together in the top of the form (instead of beside each input)
         you set the property <code>errorMessagePosition</code> to <code>top</code> and disable the feature <code>validateOnBlur</code>.
     </p>
 
@@ -1869,7 +1884,7 @@ $.validationSetup({
                 <li><a href="#default-validators_url">URL</a></li>
                 <li><a href="#default-validators_dates">Date</a></li>
                 <li><a href="#default-validators_alphanumeric">Alphanumeric</a></li>
-                <li><a href="#default-validators_checkboxgroup">Checkbox Group</a></li>
+                <li><a href="#default-validators_checkboxgroup">Checkbox group</a></li>
                 <li><a href="#default-validators_custom">Regexp</a></li>
                 <li><a href="#default-validators_restrict-length">Character count down</a></li>
                 <li><a href="#default-validators_optional">Make validation optional</a></li>
@@ -1942,7 +1957,18 @@ $.validationSetup({
 
         <li class="nav-header">Customizations</li>
 
-        <li><a href="#configuration">Setup and configuration</a></li>
+        <li><a href="#configuration" class="menu-link">Setup and configuration <span class="arr">&#9650;</span></a></li>
+        <li class="submenu configuration">
+            <ul>
+                <li><a href="#configuration_setup">Setup</a></li>
+                <li><a href="#configuration_modules">Loading modules</a></li>
+                <li><a href="#configuration_callbacks">Validation callbacks</a></li>
+                <li><a href="#configuration_styling">Styling</a></li>
+                <li><a href="#configuration_disable">Disabling features</a></li>
+                <li><a href="#configuration_position">Error message position</a></li>
+            </ul>
+        </li>
+
         <li><a href="#localization">Localization</a></li>
         <li><a href="#custom-validators">Writing custom validators</a></li>
 
@@ -1974,8 +2000,8 @@ $.validationSetup({
 
 <script src="js/prettyprint.js"></script>
 <script src="js/jquery.1.8.3.min.js"></script>
-<script src="js/form-validator/jquery.form-validator.js?v=12"></script>
-<script src="js/main.js?v=15"></script>
+<script src="js/form-validator/jquery.form-validator.js?v=13"></script>
+<script src="js/main.js?v=16"></script>
 
 <script>
     if ( SAVE_STATS ) {
