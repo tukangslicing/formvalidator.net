@@ -23,7 +23,7 @@ prettyPrint();
 /*
  Setup form validation
  */
-$.validationSetup({
+$.validate({
     form : '.test-form:not(.top-messages)',
     modules : 'date, security, location, date, sweden, uk, file',
     onModulesLoaded: function($form) {
@@ -55,7 +55,7 @@ $.validationSetup({
 /*
   Setup form validation with error messages in top
  */
-$.validationSetup({
+$.validate({
     form : '.test-form.top-messages',
     scrollToTopOnError: false,
     validateOnBlur: false,
@@ -240,7 +240,8 @@ $('#download-link').click(function() {
         });
     } else {
         $(this).addClass('active');
-        $downloadInfo.show().animate({ height: '210px' });
+        $downloadInfo.show().animate({ height: '310px' });
     }
     return false;
 });
+$downloadInfo.animate({ height: 0 });

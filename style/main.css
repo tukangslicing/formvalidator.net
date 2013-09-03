@@ -69,7 +69,25 @@ h3 {
         margin-top: 18px;
     }
 
+    #download-info p,
     #download-info li {
+        color: #FFF;
+    }
+
+    #download-info p {
+        padding-top: 0;
+        padding-bottom: 8px;
+    }
+
+    #download-info p strong {
+        display: inline-block;
+        padding: 3px 5px;
+        background: rgba(255,255,255, .1);
+        margin-top: 5px;
+        color: #b9e5f3;
+    }
+
+    #download-info p strong span {
         color: #FFF;
     }
 
@@ -221,12 +239,17 @@ a.active .arr {
 
 /* Form validator */
 
-span.form-error {
-    display: block !important;
-    float: none;
-    font-size: 85% !important;
+.help-block {
+    display: inline;
+    padding-left: 6px;
+    font-size: 85%;
+}
+
+span.form-error.help-block {
+    display: block;
     color: red;
-    padding-top: 4px;
+    margin-top: 6px;
+    padding-left: 0;
 }
 
 div.form-error {
@@ -253,11 +276,8 @@ input.error {
     padding: 4px;
 }
 
-form.validating-backend {
-    background: url(../img/ajax-loader.gif) no-repeat center center;
-}
-
-form.validating-backend div {
+form.validating-server-side .server-validation {
+    background: url(../img/ajax-loader.gif?v=2) no-repeat center right #FFF;
     opacity: 0.5;
 }
 

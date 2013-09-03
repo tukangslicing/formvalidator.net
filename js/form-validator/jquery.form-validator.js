@@ -5,7 +5,7 @@
 *
 * @website http://formvalidator.net/
 * @license Dual licensed under the MIT or GPL Version 2 licenses
-* @version 2.1.4
+* @version 2.1.8
 */
 (function($) {
 
@@ -90,9 +90,6 @@
         config = $.extend($.formUtils.defaultConfig(), config || {});
         config.errorMessagePosition = 'element';
 
-        // Capture default error message
-        //$.formUtils.figureOutDefaultBorderColor(this);
-
         var $element = this,
 
             // test if there is custom obj to hold element error msg (id = element name + err_msg)
@@ -110,6 +107,7 @@
         // Remove possible error style applied by previous validation
         $element
             .removeClass(config.errorElementClass)
+            .css('border-color', '')
             .parent()
             .find('.'+config.errorMessageClass).remove();
 
@@ -120,10 +118,6 @@
         if( elementErrMsgObj != null) {
             elementErrMsgObj.innerHTML = '';
         }
-
-        //if(config.borderColorOnError !== '') {
-          //  $element.css('border-color', $.formUtils.defaultBorderColor);
-        //}
 
         var validation = $.formUtils.validateInput($element, language, config, $form);
 
@@ -246,9 +240,6 @@
             var elementType = $element.attr('type');
             if (!ignoreInput($element.attr('name'), elementType)) {
 
-                // memorize border color
-               // $.formUtils.figureOutDefaultBorderColor($element);
-
                 var validation = $.formUtils.validateInput(
                                 $element,
                                 language,
@@ -272,14 +263,10 @@
         //
         // Reset style and remove error class
         //
-        //var borderStyleProp = $.formUtils.defaultBorderColor===null ||
-          //  ($.formUtils.defaultBorderColor.indexOf(' ') > -1 && $.formUtils.defaultBorderColor.indexOf('rgb') == -1)
-           // ? 'border':'border-color';
-
-        $form.find('input,textarea,select')
-            //.css(borderStyleProp, $.formUtils.defaultBorderColor)
-            .removeClass(config.errorElementClass);
         $form.find('.has-error').removeClass('has-error');
+        $form.find('input,textarea,select')
+            .css('border-color', '')
+            .removeClass(config.errorElementClass);
 
         //
         // Remove possible error messages from last validation
@@ -414,7 +401,7 @@
      * Short hand function that makes the validation setup require less code
      * @param config
      */
-    $.validationSetup = function(config) {
+    $.validate = function(config) {
         config = $.extend({
             form : 'form',
             validateOnBlur : true,
@@ -473,6 +460,17 @@
     };
 
     /**
+     * @deprecated
+     * @param {Object} config
+     */
+    $.validationSetup = function(config) {
+        if( typeof console != 'undefined' && console.warn ) {
+            window.console.warn('Using deprecated function $.validationSetup, pls use $.validate instead');
+        }
+        $.validate(config);
+    };
+
+    /**
      * Object containing utility methods for this plugin
      */
     $.formUtils = {
@@ -490,25 +488,10 @@
                 validationErrorMsgAttribute : 'data-validation-error-msg', // define custom err msg inline with element
                 errorMessagePosition : 'element', // Can be either "top" or "element"
                 scrollToTopOnError : true,
-                dateFormat : 'yyyy-mm-dd'
+                dateFormat : 'yyyy-mm-dd',
+                decimalSeparator : '.'
             }
         },
-
-        /**
-         * @param {jQuery} $element
-         */
-        figureOutDefaultBorderColor : function($element) {
-            var elementType = $element.attr('type');
-            if (this.defaultBorderColor === null && elementType !== 'submit' && elementType !== 'checkbox' && elementType !== 'radio') {
-                this.defaultBorderColor = $element.css('border-color');
-            }
-        },
-
-        /**
-        * Default border color, will be picked up first
-        * time form is validated
-        */
-        defaultBorderColor : null,
 
         /**
         * Available validators
@@ -615,26 +598,27 @@
                     $.formUtils.isLoadingModules = true;
                 }
 
+                var cacheSuffix = '?__='+( new Date().getTime() ),
+                    appendToElement = document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0];
+
                 $.each(moduleList, function(i, modName) {
                     modName = $.trim(modName);
                     if( modName.length == 0 ) {
                         moduleLoadedCallback();
                     }
                     else {
-                        var scriptUrl = path + modName + (modName.substr(-3) == '.js' ? '':'.js');
-                        $.ajax({
-                            url : scriptUrl,
-                            cache : scriptUrl.substr(-7) != '.dev.js',
-                            dataType : 'script',
-                            async : false,
-                            success : function() {
+                        var scriptUrl = path + modName + (modName.substr(-3) == '.js' ? '':'.js'),
+                            script = document.createElement('SCRIPT');
+                        script.type = 'text/javascript';
+                        script.onload = moduleLoadedCallback;
+                        script.src = scriptUrl + ( scriptUrl.substr(-7) == '.dev.js' ? cacheSuffix:'' );
+                        script.onreadystatechange = function() {
+                            // IE 7 fix
+                            if( this.readyState == 'complete' ) {
                                 moduleLoadedCallback();
-                            },
-                            error : function() {
-                                moduleLoadedCallback();
-                                throw new Error('Unable to load form validation module '+modName);
                             }
-                        });
+                        };
+                        appendToElement.appendChild( script );
                     }
                 });
             };
@@ -1331,9 +1315,11 @@
     */
     $.formUtils.addValidator({
         name : 'number',
-        validatorFunction : function(val, $el) {
+        validatorFunction : function(val, $el, config) {
             if(val !== '') {
-                var allowing = $el.valAttr('allowing') || '';
+                var allowing = $el.valAttr('allowing') || '',
+                    decimalSeparator = $el.valAttr('decimal-separator') || config.decimalSeparator;
+
                 if(allowing.indexOf('number') == -1)
                     allowing += ',number';
 
@@ -1344,7 +1330,7 @@
                 if(allowing.indexOf('number') > -1 && val.replace(/[0-9]/g, '') === '') {
                     return true;
                 }
-                if(allowing.indexOf('float') > -1 && val.match(/^([0-9]+)\.([0-9]+)$/) !== null) {
+                if(allowing.indexOf('float') > -1 && val.match(new RegExp('^([0-9]+)\\'+decimalSeparator+'([0-9]+)$')) !== null) {
                     return true;
                 }
             }
