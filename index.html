@@ -2,7 +2,7 @@
 <html>
 <head>
 
-    <title>jQuery Form Validator v2.0</title>
+    <title>jQuery Form Validator</title>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <link href='http://fonts.googleapis.com/css?family=Abel' rel='stylesheet' type='text/css'/>
@@ -18,7 +18,7 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
-                <a class="brand" href="./index.html" id="logo">jQuery Form Validator 2.0</a>
+                <a class="brand" href="./index.html" id="logo">jQuery Form Validator</a>
 
                 <div class="top-menu">
                     <a href="#" id="download-link">
@@ -37,7 +37,7 @@
                             jQuery Form Validator is now available using <em>cdnjs</em>.
                             <br />
                             <strong>
-                                &lt;script src=&quot;<span>//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js</span>&quot;&gt;&lt;/script&gt;
+                                &lt;script src=&quot;<span>//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js</span>&quot;&gt;&lt;/script&gt;
                             </strong>
                         </p>
                         <h3>Download</h3>
@@ -95,7 +95,7 @@
 </div>
 
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;>&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;>&lt;/script&gt;
 &lt;script&gt; $.validate(); &lt;/script&gt;
 ...</pre>
 </div>
@@ -473,7 +473,7 @@ $("[name='newsletters[]']:eq(0)")
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;>&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;>&lt;/script&gt;
 &lt;script&gt;
     $.validate();
     $('#my-textarea').restrictLength( $('#max-length-element') );
@@ -633,7 +633,7 @@ $("[name='newsletters[]']:eq(0)")
     </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;>&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;>&lt;/script&gt;
 &lt;script&gt;
 
     $.validate({
@@ -663,7 +663,7 @@ $("[name='newsletters[]']:eq(0)")
 </p>
                 <pre class="prettyprint">
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
     $.validate({
         modules : 'security'
@@ -705,7 +705,7 @@ $("[name='newsletters[]']:eq(0)")
     </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'security',
@@ -733,7 +733,7 @@ $.validate({
 </p>
 
 <p>
-    The form will get the class <em>validating-backend</em> while the server is being requested.
+    The form will get the class <em>validating-server-side</em> while the server is being requested.
 </p>
 
 <p>
@@ -899,7 +899,7 @@ $_SESSION['captcha'] = array( mt_rand(0,9), mt_rand(1, 9) );
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;>&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;>&lt;/script&gt;
 &lt;script&gt;
     $.validate({
         modules : 'security',
@@ -930,7 +930,7 @@ $_SESSION['captcha'] = array( mt_rand(0,9), mt_rand(1, 9) );
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;>&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;>&lt;/script&gt;
 &lt;script&gt;
 
 // Add validation
@@ -996,7 +996,7 @@ $.validate();
 
                 <pre class="prettyprint linenums">
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;>&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;>&lt;/script&gt;
 &lt;script&gt;
     $.formUtils.loadModules('mymodule.dev', 'js/validation-modules/');
 &lt;/script&gt;
@@ -1214,7 +1214,7 @@ $.validate({
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;>&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;>&lt;/script&gt;
 &lt;script&gt;
     $.validate({
         validateOnBlur : false, // disable validation when input looses focus
@@ -1242,7 +1242,7 @@ $.validate({
 </form>
                 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 
     var myLanguage = {
@@ -1293,7 +1293,7 @@ $.validate({
 
                 <pre class="prettyprint">
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'file'
@@ -1365,7 +1365,7 @@ $.validate({
 
                 <pre class="prettyprint">
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'location'
@@ -1415,7 +1415,7 @@ $.validate({
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'location',
@@ -1486,7 +1486,7 @@ $.validate({
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'location',
@@ -1512,7 +1512,7 @@ $.validate({
 
                 <pre class="prettyprint">
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'date'
@@ -1589,7 +1589,7 @@ $.validate({
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'date'
@@ -1614,7 +1614,7 @@ $.validate({
 
                 <pre class="prettyprint">
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'sweden'
@@ -1662,7 +1662,7 @@ $.validate({
     ...
 </form></div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'sweden',
@@ -1715,7 +1715,7 @@ $.validate({
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'sweden',
@@ -1810,7 +1810,7 @@ $.validate({
 </form>
 </div>
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 $.validate({
     modules : 'sweden',
@@ -1859,7 +1859,7 @@ $.validate({
     </p>
                 <pre class="prettyprint">
 &lt;script src=&quot;//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
     $.validate({
         modules : 'uk'
@@ -2048,7 +2048,7 @@ $.validate({
 
 <script src="js/prettyprint.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.9/jquery.form-validator.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.1.15/jquery.form-validator.min.js"></script>
 <script src="js/main.js?v=21"></script>
 
 <script>
